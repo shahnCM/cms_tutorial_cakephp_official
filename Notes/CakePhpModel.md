@@ -1,10 +1,25 @@
-<?php 
+Cake Php Study / Understanding
+
+## Models 
+
+___CakePHP’s models are composed of Table and Entity objects___
+
+__2 Things__ need to be put in consideration here.
+
+1. Table
+2. Entity
+
+### Table :
+
+We need to `use Cake\ORM\Table` 
+
+```php
 // src/Model/Table/ArticlesTable.php
 namespace App\Model\Table;
 
 use Cake\ORM\Table;
 // for query
-use Cake\ORM\Query;
+use 
 // the validator class
 use Cake\Validation\Validator;
 // the text class
@@ -12,19 +27,30 @@ use Cake\Utility\Text;
 // the EventInterface class
 use Cake\Event\EventInterface;
 
-class ArticlesTable extends Table
+class ArticlesTable extends Table  
 {
+
+}
+```
+
+Here we define Realationship with in `initialize` method
+
+```php
     public function initialize(array $config): void 
     {
-        parent::initialize($config); // <- Check how does this act
-        
         $this->addBehavior('Timestamp');
         $this->belongsToMany('Tags', [
             'joinTable' => 'articles_tags',
             'dependent' => true
         ]); 
     }
+```
 
+We deal with validations against correspondent table's fields
+
+We need to `use Cake\Validation\Validator`
+
+```php
     public function validationDefault(Validator $validator): Validator
     {
         $validator
@@ -37,7 +63,25 @@ class ArticlesTable extends Table
 
         return $validator;
     }
+```
 
+We can use RulesChecker
+We need to `use Cake\ORM\RulesChecker`
+
+```php
+    public function buildRules(RulesChecker $rules): RulesChecker
+    {
+        $rules->add($rules->isUnique(['email']), ['errorField' => 'email']);
+
+        return $rules;
+    }
+```
+
+We also write `CUSTOM QUERY` methods in this class.
+
+We need to `use Cake\ORM\Query`
+
+```php
     // The $query argument is query builder instance.
     // The $options array will contain the 'tags' option we passed
     // to find('tagged') in our controller action.
@@ -63,42 +107,13 @@ class ArticlesTable extends Table
     
         return $query->group(['Articles.id']);
     }
+```
 
-    public function _buildTags($tagsString)
-    {
-        // Trim tags
-        $newTags = array_map('trim', explode(',', $tagString));
-        // Remove all empty tags
-        $newTags = array_filter($newTags);
-        // Reduce Dplicated Tags
-        $newTags = array_unique($newTags);
+And we also trigger some methods before and after we save some JUST LIKE OBSERVERS,
 
-        $out = [];
-        $tags = $this->Tags->find()->where(['Tags.title IN' => $newTags])->all();
+For that we need to `use Cake\Event\EventInterface`
 
-        // Remove all existing tags from the list of new tags.
-        foreach ($tags->extract('title') as $existing) {
-            $index = array_search($existing, $newTags);
-            if ($index !== false) {
-                unset($newTags[$index]);
-            }
-        }
-
-        // Add Existing Tags.
-        foreach ($tags as $tag) {
-            $out[] = $tag;
-        }
-
-        // Add New Tags.
-        foreach ($newTags as $tag) {
-            $out[] = $this->Tags->newEntity(['title' => $tag]);
-        }
-
-        return $out;
-    }
-
-    // This code is simple, and doesn’t take into account duplicate slugs. 
-    // But we’ll fix that later on
+```php
     public function beforeSave(EventInterface $event, $entity, $options)
     {
         if ($entity->tag_string) {
@@ -111,4 +126,37 @@ class ArticlesTable extends Table
             $entity->slug = substr($sluggedTitle, 0, 191);
         }
     }
+```
+
+### Entity : 
+Entities represent a single record in the database, and provide row level behavior for our data
+
+```php
+// Cake ORM
+use Cake\ORM\Entity;
+// src/Model/Entity/Article 
+namespace App\Model\Entity;
+// the Collection class
+use Cake\Collection\Collection;
+
+class Article extends Entity 
+{
 }
+```
+
+We can define the accessible fields,
+`_accessible` property controls how properties can be modified by __Mass Assignments__
+
+```php
+    protected $_accessible = [
+        '*' => true,
+        'id' => false,
+        'slug' => false,
+        'tag_string' => true
+    ];
+```
+
+
+
+
+

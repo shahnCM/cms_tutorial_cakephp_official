@@ -5,6 +5,7 @@
 /logs/*
 /tmp/*
 /vendor/*
+/STUDY/Questions.MD
 
 # OS generated files #
 ######################
