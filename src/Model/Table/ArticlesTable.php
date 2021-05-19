@@ -64,7 +64,7 @@ class ArticlesTable extends Table
         return $query->group(['Articles.id']);
     }
 
-    public function _buildTags($tagsString)
+    public function _buildTags($tagString)
     {
         // Trim tags
         $newTags = array_map('trim', explode(',', $tagString));

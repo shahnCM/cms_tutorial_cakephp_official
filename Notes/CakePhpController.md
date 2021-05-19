@@ -24,6 +24,10 @@ Other than those everything is simple and self-explanatory
 
 For REST response (Json Response) 
 
+The fastest way to get up and running with REST is to add a few lines to setup [resource routes](https://book.cakephp.org/4/en/development/routing.html#resource-routes) in your `config/routes.php` file.
+
+Once the router has been set up to map REST requests to certain controller actions.
+
 We need to `initialize RequestHandler`
 no need to import it
 
