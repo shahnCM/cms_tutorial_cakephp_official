@@ -235,7 +235,48 @@ class TestsController extends AppController {
 }
 ```
 
+### Redirecting Routes:
 
+Redirect routing is useful, when we want to inform client application that, this URL has been moved. The URL can be redirect using the following function - 
+
+```php
+    static Cake\Routing\Router::redirect($route, $url, $options =[])
+```
+
+There are three arguments to the above function as follows −
+
+*   A string describing the template of the route.
+*   A URL to redirect to.
+*   An array matching the named elements in the route to regular
+    expressions which that element should match.
+
+Implementation: 
+
+In the `config/routes.php`
+
+```php
+use Cake\Http\Middleware\CsrfProtectionMiddleware;
+use Cake\Routing\Route\DashedRoute;
+use Cake\Routing\RouteBuilder;
+
+$routes->setRouteClass(DashedRoute::class);
+
+$routes->scope('/', function (RouteBuilder $builder) {
+    
+    // Register scoped middleware for in scopes.
+    $builder->registerMiddleware(
+        'csrf', 
+        new CsrfProtectionMiddleware(['httpOnly' => true,])
+    );
+    $builder->applyMiddleware('csrf');
+    
+    $builder->connect(
+        '/generate',['controller'=>'Generates','action'=>'show']
+    );
+    $builder->redirect('/redirect','https://tutorialspoint.com/');
+    $builder->fallbacks();
+});
+```
 
 
 
